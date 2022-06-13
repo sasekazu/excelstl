@@ -36,6 +36,7 @@ Sheet2（三角形インデックスリスト）
 
 ※ヘッダーのv1, v2, v3は書かない。書くとエラーになる。
 
+[サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/square-10mm.xlsx)
 
 ### 3Dモード
 三次元空間で閉じた形状を直接入力するモード。
@@ -70,4 +71,5 @@ excelstlを実行し、ウィンドウにExcelファイルをドラッグアン�
 頂点座標が2列の場合は2Dモード、3列の場合は3Dモードが自動的に選択され実行される。
 名前を付けて保存ダイアログが出るので、保存場所とファイル名を入力し保存する。
 
-[出力例](https://github.com/sasekazu/excelstl/blob/main/tetra-10mm.stl)
+[2Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/square-10mm.stl)
+[3Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/tetra-10mm.stl)
