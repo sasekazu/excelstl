@@ -20,7 +20,7 @@ def main():
 def gen_stl(event):
     file = event.data
     if not file.endswith('xlsx'):
-        messagebox.showwarning('Error', 'This is not an Excel file')
+        messagebox.showerror('Error', 'This is not an Excel file.')
         return
     print('Reading ' + file)
     xls = pd.ExcelFile(file)   
@@ -32,11 +32,52 @@ def gen_stl(event):
     print(vtx)
     print('Indices')
     print(idx)
-    stl = make_stl_string(vtx, idx)
+
+    # 2D mode
+    if vtx.shape[1] == 2:
+        stl = make_stl_string_2d(vtx, idx)
+    # 3D mode
+    elif vtx.shape[1] == 3:
+        stl = make_stl_string(vtx, idx)
+    else:
+        messagebox.showerror('Error', 'Size of array is wrong.')
+        return
+
     out = filedialog.asksaveasfile(defaultextension='stl', title='Save as ...', filetypes=[('stl', '*.stl')])
     out.write(stl)
     out.close()
     messagebox.showinfo('Completed', 'STL file has been saved.\n' + out.name)
+
+
+def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
+    nVtx0 = vtx.shape[0]
+    nIdx0 = idx.shape[0]
+    # Append Z-axis values (0)
+    vtx = np.append(vtx, np.zeros(nVtx0).reshape(-1, 1), axis=1) 
+    vtx3D = np.append(vtx, vtx, axis=0) 
+    # Append bottom vertices
+    for i in range(nVtx0):
+        vtx3D[i][2] += 5
+    # Append bottom triangles
+    idx3D = np.append(idx, idx, axis=0)
+    for i in range(nIdx0):
+        idx3D[i+nIdx0][0] += nVtx0
+        idx3D[i+nIdx0][1] += nVtx0
+        idx3D[i+nIdx0][2] += nVtx0
+    # Append side triangles
+    for i in range(nIdx0):
+        for j in range(3):
+            e11 = idx3D[i][j]
+            e12 = idx3D[i][(j+1)%3]
+            e21 = idx3D[i+nIdx0][j]
+            e22 = idx3D[i+nIdx0][(j+1)%3]
+            idx3D = np.append(idx3D, np.array([e11, e21, e12]).reshape(1, -1), axis=0)
+            idx3D = np.append(idx3D, np.array([e12, e21, e22]).reshape(1, -1), axis=0)
+    # Invert bottom triangles
+    for i in range(nIdx0):
+        idx3D[i+nIdx0][1], idx3D[i+nIdx0][2] = idx3D[i+nIdx0][2], idx3D[i+nIdx0][1] # swap
+    return make_stl_string(vtx3D, idx3D)
+
 
 def make_stl_string(vtx: np.ndarray, idx: np.ndarray) -> str:
     stl = 'solid excelstl\n'
