@@ -24,8 +24,8 @@ def gen_stl(event):
         return
     print('Reading ' + file)
     xls = pd.ExcelFile(file)   
-    dfV = xls.parse('Sheet1')   # Vertices (x, y, z)
-    dfI = xls.parse('Sheet2')   # Indices (triangles), 1-based
+    dfV = xls.parse('Sheet1', header=None)   # Vertices (x, y, z)
+    dfI = xls.parse('Sheet2', header=None)   # Indices (triangles), 1-based
     vtx = dfV.to_numpy()
     idx = dfI.to_numpy()
     print('Vertices')
