@@ -1,5 +1,6 @@
 # excelstl
- An application that reads an Excel file with vertex and triangle arrays and outputs an STL file.
+頂点座標と三角形のインデックスリストを書いたExcelファイルを読み込んで、STLファイルを出力するアプリケーション。
+An application that reads an Excel file with vertex and triangle arrays and outputs an STL file.
 
 # 使い方
 
