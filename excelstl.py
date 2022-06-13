@@ -47,9 +47,9 @@ def make_stl_string(vtx: np.ndarray, idx: np.ndarray) -> str:
         stl += 'outer loop\n'
         for j in range(3):
             # Convert indices from 1-based to 0-based
-            stl += 'vertex ' + str(vtx[tri[j]][0] - 1) + ' '
-            stl += str(vtx[tri[j]][1] - 1) + ' '
-            stl += str(vtx[tri[j]][2] - 1) + '\n' 
+            stl += 'vertex ' + str(vtx[tri[j]-1][0]) + ' '
+            stl += str(vtx[tri[j]-1][1]) + ' '
+            stl += str(vtx[tri[j]-1][2]) + '\n' 
         stl += 'endloop\n'
         stl += 'endfacet\n'
     stl += 'endsolid excelstl\n'
