@@ -28,3 +28,5 @@ Sheet2
 ## STLファイルの生成
 excelstlを実行し、ウィンドウにExcelファイルをドラッグアンドドロップする。
 名前を付けて保存ダイアログが出るので、保存場所とファイル名を入力し保存する。
+
+[出力例](https://github.com/sasekazu/excelstl/blob/main/tetra-10mm.stl)
