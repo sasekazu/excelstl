@@ -55,8 +55,8 @@ def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
     nIdx0 = idx.shape[0]
     # Append Z-axis values (0)
     vtx = np.append(vtx, np.zeros(nVtx0).reshape(-1, 1), axis=1) 
-    vtx3D = np.append(vtx, vtx, axis=0) 
     # Append bottom vertices
+    vtx3D = np.append(vtx, vtx, axis=0) 
     for i in range(nVtx0):
         vtx3D[i][2] += 5
     # Append bottom triangles
