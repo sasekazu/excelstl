@@ -14,6 +14,8 @@ class Application(tk.Frame):
         super().__init__(master)
         self.pack()
         self.master.title('ExcelSTL')
+        self.drop_target_register(DND_FILES)
+        self.dnd_bind('<<Drop>>', gen_stl)
         # Unit radio
         f1 = tk.LabelFrame(self, text='Unit')
         f1.pack()
@@ -35,8 +37,6 @@ class Application(tk.Frame):
 
 def main():
     root = TkinterDnD.Tk()
-    root.drop_target_register(DND_FILES)
-    root.dnd_bind('<<Drop>>', gen_stl)
     app = Application(master=root)
     app.mainloop()
 
@@ -71,7 +71,6 @@ def gen_stl(event):
 
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
-    print(dataUnit)
     if dataUnit == 'cm':
         vtx *= 10.0
     nVtx0 = vtx.shape[0]
