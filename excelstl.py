@@ -72,13 +72,23 @@ def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
             e12 = idx3D[i][(j+1)%3]
             e21 = idx3D[i+nIdx0][j]
             e22 = idx3D[i+nIdx0][(j+1)%3]
-            idx3D = np.append(idx3D, np.array([e11, e21, e12]).reshape(1, -1), axis=0)
-            idx3D = np.append(idx3D, np.array([e12, e21, e22]).reshape(1, -1), axis=0)
+            if is_edge_unique(idx, e11, e12):
+                idx3D = np.append(idx3D, np.array([e11, e21, e12]).reshape(1, -1), axis=0)
+                idx3D = np.append(idx3D, np.array([e12, e21, e22]).reshape(1, -1), axis=0)
     # Invert bottom triangles
     for i in range(nIdx0):
         idx3D[i+nIdx0][1], idx3D[i+nIdx0][2] = idx3D[i+nIdx0][2], idx3D[i+nIdx0][1] # swap
     return make_stl_string(vtx3D, idx3D)
 
+def is_edge_unique(idx: np.ndarray, v1: int, v2: int):
+    n = idx.shape[0]
+    duplicateCount = 0
+    # Search all edges
+    for i in range(n):
+        for j in range(3):
+            duplicateCount += (v1 == idx[i][j] and v2 == idx[i][(j+1)%3])
+            duplicateCount += (v2 == idx[i][j] and v1 == idx[i][(j+1)%3])
+    return duplicateCount == 1
 
 def make_stl_string(vtx: np.ndarray, idx: np.ndarray) -> str:
     stl = 'solid excelstl\n'
