@@ -6,17 +6,39 @@ from TkinterDnD2 import *
 import pandas as pd
 import numpy as np
 
+dataUnit = ''
+thickness = 5 # [mm]
+
+class Application(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack()
+        self.master.title('ExcelSTL')
+        # Unit radio
+        f1 = tk.LabelFrame(self, text='Unit')
+        f1.pack()
+        var = tk.StringVar()
+        def setDataUnit():
+            global dataUnit
+            dataUnit = var.get()
+        cm = tk.Radiobutton(f1, value='cm', variable=var, text='cm', command=setDataUnit)
+        cm.pack(side='left')
+        mm = tk.Radiobutton(f1, value='mm', variable=var, text='mm', command=setDataUnit)
+        mm.pack(side='left')
+        cm.invoke()
+        # D&D label
+        label = tk.Label(self)
+        label["text"] = "Drag & Drop Your Excel file here"
+        label["width"] = 30
+        label["height"] = 10
+        label.pack()
+
 def main():
     root = TkinterDnD.Tk()
     root.drop_target_register(DND_FILES)
-    root.title('ExcelSTL')
     root.dnd_bind('<<Drop>>', gen_stl)
-    label = tk.Label(root)
-    label["text"] = "Drag & Drop Your Excel file here"
-    label["width"] = 30
-    label["height"] = 10
-    label.pack()
-    root.mainloop()
+    app = Application(master=root)
+    app.mainloop()
 
 def gen_stl(event):
     file = event.data
@@ -33,7 +55,6 @@ def gen_stl(event):
     print(vtx)
     print('Indices')
     print(idx)
-
     # 2D mode
     if vtx.shape[1] == 2:
         stl = make_stl_string_2d(vtx, idx)
@@ -43,7 +64,6 @@ def gen_stl(event):
     else:
         messagebox.showerror('Error', 'Size of array is wrong.')
         return
-
     out = filedialog.asksaveasfile(defaultextension='stl', title='Save as ...', filetypes=[('stl', '*.stl')])
     out.write(stl)
     out.close()
@@ -51,6 +71,9 @@ def gen_stl(event):
 
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
+    print(dataUnit)
+    if dataUnit == 'cm':
+        vtx *= 10.0
     nVtx0 = vtx.shape[0]
     nIdx0 = idx.shape[0]
     # Append Z-axis values (0)
@@ -58,7 +81,7 @@ def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
     # Append bottom vertices
     vtx3D = np.append(vtx, vtx, axis=0) 
     for i in range(nVtx0):
-        vtx3D[i][2] += 5
+        vtx3D[i][2] += thickness
     # Append bottom triangles
     idx3D = np.append(idx, idx, axis=0)
     for i in range(nIdx0):
