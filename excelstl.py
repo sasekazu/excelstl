@@ -9,6 +9,7 @@ import numpy as np
 def main():
     root = TkinterDnD.Tk()
     root.drop_target_register(DND_FILES)
+    root.title('ExcelSTL')
     root.dnd_bind('<<Drop>>', gen_stl)
     label = tk.Label(root)
     label["text"] = "Drag & Drop Your Excel file here"
