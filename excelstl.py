@@ -23,10 +23,10 @@ class Application(tk.Frame):
         def setDataUnit():
             global dataUnit
             dataUnit = var.get()
-        cm = tk.Radiobutton(f1, value='cm', variable=var, text='cm', command=setDataUnit)
-        cm.pack(side='left')
-        mm = tk.Radiobutton(f1, value='mm', variable=var, text='mm', command=setDataUnit)
-        mm.pack(side='left')
+        cm = tk.Radiobutton(f1, value='cm', variable=var, text='[cm] to [mm]', command=setDataUnit)
+        cm.pack(anchor=tk.W)
+        mm = tk.Radiobutton(f1, value='mm', variable=var, text='[mm] to [mm] (no change)', command=setDataUnit)
+        mm.pack(anchor=tk.W)
         cm.invoke()
         # D&D label
         label = tk.Label(self)
@@ -67,7 +67,6 @@ def gen_stl(event):
     out = filedialog.asksaveasfile(defaultextension='stl', title='Save as ...', filetypes=[('stl', '*.stl')])
     out.write(stl)
     out.close()
-    messagebox.showinfo('Completed', 'STL file has been saved.\n' + out.name)
 
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
