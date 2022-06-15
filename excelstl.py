@@ -6,17 +6,39 @@ from TkinterDnD2 import *
 import pandas as pd
 import numpy as np
 
+dataUnit = ''
+thickness = 5 # [mm]
+
+class Application(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack()
+        self.master.title('ExcelSTL')
+        self.drop_target_register(DND_FILES)
+        self.dnd_bind('<<Drop>>', gen_stl)
+        # Unit radio
+        f1 = tk.LabelFrame(self, text='Unit')
+        f1.pack()
+        var = tk.StringVar()
+        def setDataUnit():
+            global dataUnit
+            dataUnit = var.get()
+        cm = tk.Radiobutton(f1, value='cm', variable=var, text='[cm] to [mm]', command=setDataUnit)
+        cm.pack(anchor=tk.W)
+        mm = tk.Radiobutton(f1, value='mm', variable=var, text='[mm] to [mm] (no change)', command=setDataUnit)
+        mm.pack(anchor=tk.W)
+        cm.invoke()
+        # D&D label
+        label = tk.Label(self)
+        label["text"] = "Drag & Drop Your Excel file here"
+        label["width"] = 30
+        label["height"] = 10
+        label.pack()
+
 def main():
     root = TkinterDnD.Tk()
-    root.drop_target_register(DND_FILES)
-    root.title('ExcelSTL')
-    root.dnd_bind('<<Drop>>', gen_stl)
-    label = tk.Label(root)
-    label["text"] = "Drag & Drop Your Excel file here"
-    label["width"] = 30
-    label["height"] = 10
-    label.pack()
-    root.mainloop()
+    app = Application(master=root)
+    app.mainloop()
 
 def gen_stl(event):
     file = event.data
@@ -33,9 +55,9 @@ def gen_stl(event):
     print(vtx)
     print('Indices')
     print(idx)
-
     # 2D mode
     if vtx.shape[1] == 2:
+        idx = fix_tri_dir(vtx, idx)
         stl = make_stl_string_2d(vtx, idx)
     # 3D mode
     elif vtx.shape[1] == 3:
@@ -43,14 +65,22 @@ def gen_stl(event):
     else:
         messagebox.showerror('Error', 'Size of array is wrong.')
         return
-
     out = filedialog.asksaveasfile(defaultextension='stl', title='Save as ...', filetypes=[('stl', '*.stl')])
     out.write(stl)
     out.close()
-    messagebox.showinfo('Completed', 'STL file has been saved.\n' + out.name)
 
+def fix_tri_dir(vtx: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    n = idx.shape[0]
+    for i in range(n):
+        v1, v2, v3 = idx[i][0]-1, idx[i][1]-1, idx[i][2]-1 # 1-based to 0-based
+        a, b = vtx[v2] - vtx[v1], vtx[v3] - vtx[v1]
+        if a[0] * b[1] - a[1] * b[0] < 0:
+            idx[i][1], idx[i][2] = idx[i][2], idx[i][1] # swap
+    return idx
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
+    if dataUnit == 'cm':
+        vtx *= 10.0
     nVtx0 = vtx.shape[0]
     nIdx0 = idx.shape[0]
     # Append Z-axis values (0)
@@ -58,7 +88,7 @@ def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
     # Append bottom vertices
     vtx3D = np.append(vtx, vtx, axis=0) 
     for i in range(nVtx0):
-        vtx3D[i][2] += 5
+        vtx3D[i][2] += thickness
     # Append bottom triangles
     idx3D = np.append(idx, idx, axis=0)
     for i in range(nIdx0):
