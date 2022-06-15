@@ -80,7 +80,7 @@ def fix_tri_dir(vtx: np.ndarray, idx: np.ndarray) -> np.ndarray:
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
     if dataUnit == 'cm':
-        vtx *= 10.0
+        vtx *= 10
     nVtx0 = vtx.shape[0]
     nIdx0 = idx.shape[0]
     # Append Z-axis values (0)
