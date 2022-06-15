@@ -1,4 +1,4 @@
-# excelstl
+# ExcelSTL
 頂点座標と三角形のインデックスリストを書いたExcelファイルを読み込んで、STLファイルを出力するアプリケーション。
 An application that reads an Excel file with vertex and triangle arrays and outputs an STL file.
 
@@ -9,7 +9,6 @@ https://github.com/sasekazu/excelstl/releases
 
 ## Excelファイルの準備
 Sheet1に頂点座標（頂点番号は1行目が1）を、Sheet2にインデックスリストを書く。
-インデックスリストは頂点の順番が三角形の表から見て反時計回りになるようにする（右ネジの方向が法線ベクトルと一致するように）。
 2Dモード（押し出しモード）と3Dモードがある。
 
 ### 2Dモード
@@ -35,11 +34,13 @@ Sheet2（三角形インデックスリスト）
 | 1 | 3 | 4 | 
 
 ※ヘッダーのv1, v2, v3は書かない。書くとエラーになる。
+※インデックスリストは頂点の順番が三角形の表から見て反時計回りに書かれていることが望ましいが、2DモードではExcelSTLが自動的に修正する。
 
 [サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/square-10mm.xlsx)
 
 ### 3Dモード
 三次元空間で閉じた形状を直接入力するモード。
+3Dモードではインデックスリストは頂点の順番が三角形の表から見て反時計回りになるようにする（右ネジの方向が法線ベクトルと一致するように）。
 例えば3辺が10mmの四面体では、以下のようにする。
 
 Sheet1（頂点座標）
@@ -67,7 +68,7 @@ Sheet2（三角形インデックスリスト）
 [サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/tetra-10mm.xlsx)
 
 ## STLファイルの生成
-excelstlを実行し、ウィンドウにExcelファイルをドラッグアンドドロップする。
+ExcelSTLを実行し、ウィンドウにExcelファイルをドラッグアンドドロップする。
 頂点座標が2列の場合は2Dモード、3列の場合は3Dモードが自動的に選択され実行される。
 名前を付けて保存ダイアログが出るので、保存場所とファイル名を入力し保存する。
 
