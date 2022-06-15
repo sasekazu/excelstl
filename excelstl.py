@@ -57,6 +57,7 @@ def gen_stl(event):
     print(idx)
     # 2D mode
     if vtx.shape[1] == 2:
+        idx = fix_tri_dir(vtx, idx)
         stl = make_stl_string_2d(vtx, idx)
     # 3D mode
     elif vtx.shape[1] == 3:
@@ -68,6 +69,14 @@ def gen_stl(event):
     out.write(stl)
     out.close()
 
+def fix_tri_dir(vtx: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    n = idx.shape[0]
+    for i in range(n):
+        v1, v2, v3 = idx[i][0]-1, idx[i][1]-1, idx[i][2]-1 # 1-based to 0-based
+        a, b = vtx[v2] - vtx[v1], vtx[v3] - vtx[v1]
+        if a[0] * b[1] - a[1] * b[0] < 0:
+            idx[i][1], idx[i][2] = idx[i][2], idx[i][1] # swap
+    return idx
 
 def make_stl_string_2d(vtx: np.ndarray, idx: np.ndarray) -> str:
     if dataUnit == 'cm':
