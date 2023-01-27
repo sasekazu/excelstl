@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 dataUnit = ''
-thickness = 5 # [mm]
+thickness = 3 # [mm]
 
 class Application(tk.Frame):
     def __init__(self, master):
