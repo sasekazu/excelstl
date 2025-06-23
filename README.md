@@ -4,8 +4,14 @@ An application that reads an Excel file with vertex and triangle arrays and outp
 
 # 使い方
 
-## 実行ファイルの配布
+## ウェブ実装
+[こちら](https://sasekazu.github.io/excelstl/)にアクセスして使用。
+オフラインで使用したい場合は、GitHubのCodeボタンからDownload ZIPを選んでダウンロードし、zipを解凍してindex.htmlを開く。
+以下で説明する、Excelファイルの準備を読み、作成したExcelファイルをドラッグアンドドロップし、STL生成ボタンを押すことで変換後のファイルをダウンロードできる。
+
+## 実行ファイルの配布(Python実装)
 https://github.com/sasekazu/excelstl/releases
+基本的にウェブ実装の利用を推奨。
 
 ## Excelファイルの準備
 Sheet1に頂点座標（頂点番号は1行目が1）を、Sheet2にインデックスリストを書く。
