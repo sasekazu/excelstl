@@ -6,7 +6,272 @@ document.addEventListener('DOMContentLoaded', function() {
     const sheet2Container = document.getElementById('sheet2Container');
     const sheet1Table = document.getElementById('sheet1Table');
     const sheet2Table = document.getElementById('sheet2Table');
+    const previewBtn = document.getElementById('previewBtn');
+    const previewContainer = document.getElementById('previewContainer');
+    const threeJsContainer = document.getElementById('threeJsContainer');
     
+    // Three.js関連の変数
+    let scene, camera, renderer, controls;
+    let threeJsInitialized = false;
+    let currentMesh = null;
+    
+    // Three.jsのセットアップ
+    function initThreeJs() {
+        if (threeJsInitialized) return;
+        
+        // シーンの作成
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f0f0);
+        
+        // カメラの設定
+        camera = new THREE.PerspectiveCamera(75, threeJsContainer.clientWidth / threeJsContainer.clientHeight, 0.1, 1000);
+        camera.position.set(0, 0, 50);
+        
+        // レンダラーの設定
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(threeJsContainer.clientWidth, threeJsContainer.clientHeight);
+        threeJsContainer.appendChild(renderer.domElement);
+        
+        // コントロールの設定
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        
+        // 軸の追加
+        const axesHelper = new THREE.AxesHelper(20);
+        scene.add(axesHelper);
+        
+        // グリッドの追加
+        const gridHelper = new THREE.GridHelper(50, 50);
+        gridHelper.rotation.x = Math.PI / 2;
+        scene.add(gridHelper);
+        
+        // 光源の追加
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        
+        // アニメーションループ
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // リサイズイベントのハンドリング
+        window.addEventListener('resize', onWindowResize);
+        
+        function onWindowResize() {
+            camera.aspect = threeJsContainer.clientWidth / threeJsContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(threeJsContainer.clientWidth, threeJsContainer.clientHeight);
+        }
+        
+        threeJsInitialized = true;
+    }
+    
+    // 3Dプレビューを生成
+    function generate3DPreview() {
+        if (!sheetData['Sheet1'] || !sheetData['Sheet2']) {
+            showError('有効なデータがありません。');
+            return;
+        }
+        
+        try {
+            // Three.jsの初期化
+            if (!threeJsInitialized) {
+                initThreeJs();
+            }
+            
+            // 既存のメッシュをクリア
+            if (currentMesh) {
+                scene.remove(currentMesh);
+                currentMesh = null;
+            }
+            
+            // 頂点データと三角形インデックスを取得
+            const vertices = sheetData['Sheet1'];
+            const indices = sheetData['Sheet2'];
+            
+            // 単位を取得
+            const unitElements = document.getElementsByName('unit');
+            let dataUnit = 'cm'; // デフォルト
+            for (const element of unitElements) {
+                if (element.checked) {
+                    dataUnit = element.value;
+                    break;
+                }
+            }
+            
+            // 押し出し厚さを取得
+            const thickness = parseFloat(document.getElementById('thickness').value) || 3;
+            
+            // 2D/3Dモードを判定
+            const is2DMode = vertices[0] && vertices[0].length <= 2;
+            
+            // 単位変換係数
+            const scaleFactor = dataUnit === 'cm' ? 1 : 0.1; // Three.jsでは大きすぎるとカメラから見えなくなるため、mm->cmに変換
+            
+            // ジオメトリの作成
+            const geometry = new THREE.BufferGeometry();
+            
+            // 2Dモードと3Dモードで処理を分ける
+            if (is2DMode) {
+                // 2Dモード - 押し出し処理
+                const vertexPositions = [];
+                const faces = [];
+                
+                // 正規化された2D頂点データ
+                const normalizedVertices = vertices.map(v => [
+                    (v[0] || 0) * scaleFactor,
+                    (v[1] || 0) * scaleFactor,
+                    0
+                ]);
+                
+                // 押し出し用の頂点を追加（上面と下面）
+                const thicknessScaled = thickness * 0.1; // mmをcmに変換
+                const topVertices = normalizedVertices.map(v => [v[0], v[1], thicknessScaled / 2]);
+                const bottomVertices = normalizedVertices.map(v => [v[0], v[1], -thicknessScaled / 2]);
+                
+                // すべての頂点を結合
+                const allVertices = [...topVertices, ...bottomVertices];
+                
+                // 上面の三角形
+                for (const index of indices) {
+                    const i0 = index[0] - 1;
+                    const i1 = index[1] - 1;
+                    const i2 = index[2] - 1;
+                    
+                    if (i0 >= 0 && i1 >= 0 && i2 >= 0 && 
+                        i0 < topVertices.length && i1 < topVertices.length && i2 < topVertices.length) {
+                        faces.push(i0, i1, i2); // 上面 - 反時計回り
+                    }
+                }
+                
+                // 下面の三角形
+                const vertexCount = topVertices.length;
+                for (const index of indices) {
+                    const i0 = index[0] - 1 + vertexCount;
+                    const i1 = index[1] - 1 + vertexCount;
+                    const i2 = index[2] - 1 + vertexCount;
+                    
+                    if (i0 >= vertexCount && i1 >= vertexCount && i2 >= vertexCount && 
+                        i0 < allVertices.length && i1 < allVertices.length && i2 < allVertices.length) {
+                        faces.push(i2, i1, i0); // 下面 - 時計回り（裏面）
+                    }
+                }
+                
+                // 側面の三角形
+                for (let i = 0; i < indices.length; i++) {
+                    const index = indices[i];
+                    for (let j = 0; j < 3; j++) {
+                        const k = (j + 1) % 3;
+                        const v1 = index[j] - 1;
+                        const v2 = index[k] - 1;
+                        
+                        if (v1 >= 0 && v2 >= 0 && v1 < vertexCount && v2 < vertexCount) {
+                            // 側面の4つの点
+                            const v1Top = v1;
+                            const v2Top = v2;
+                            const v1Bottom = v1 + vertexCount;
+                            const v2Bottom = v2 + vertexCount;
+                            
+                            // 2つの三角形で四角形を形成
+                            faces.push(v1Top, v2Top, v1Bottom);
+                            faces.push(v2Top, v2Bottom, v1Bottom);
+                        }
+                    }
+                }
+                
+                // 頂点座標を平坦化
+                const positions = new Float32Array(allVertices.flatMap(v => v));
+                
+                // ジオメトリに頂点と面を設定
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setIndex(faces);
+            } else {
+                // 3Dモード
+                const positions = [];
+                const indices3D = [];
+                
+                // 頂点の追加
+                for (const vertex of vertices) {
+                    positions.push(
+                        (vertex[0] || 0) * scaleFactor,
+                        (vertex[1] || 0) * scaleFactor,
+                        (vertex[2] || 0) * scaleFactor
+                    );
+                }
+                
+                // インデックスの追加
+                for (const index of indices) {
+                    indices3D.push(index[0] - 1, index[1] - 1, index[2] - 1);
+                }
+                
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.setIndex(indices3D);
+            }
+            
+            // 法線の計算
+            geometry.computeVertexNormals();
+            
+            // マテリアルの作成
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x1976d2,
+                side: THREE.DoubleSide,
+                flatShading: true
+            });
+            
+            // メッシュの作成
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // シーンに追加
+            scene.add(mesh);
+            currentMesh = mesh;
+            
+            // カメラの位置調整
+            const box = new THREE.Box3().setFromObject(mesh);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
+            
+            // カメラの位置設定
+            camera.position.set(center.x, center.y, center.z + cameraZ * 1.5);
+            camera.lookAt(center);
+            
+            // コントロールのターゲットを中心に設定
+            controls.target.set(center.x, center.y, center.z);
+            controls.update();
+            
+            // プレビューを表示
+            previewContainer.classList.remove('hidden');
+            
+        } catch (error) {
+            console.error('3Dプレビュー生成エラー:', error);
+            showError('3Dプレビューの生成中にエラーが発生しました: ' + error.message);
+        }
+    }
+    
+    // プレビューボタンのイベントリスナー
+    previewBtn.addEventListener('click', generate3DPreview);
+    
+    // ウィンドウリサイズ時にレンダラーのサイズを更新
+    window.addEventListener('resize', function() {
+        if (threeJsInitialized) {
+            camera.aspect = threeJsContainer.clientWidth / threeJsContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(threeJsContainer.clientWidth, threeJsContainer.clientHeight);
+        }
+    });
+
     let workbook = null;
     let sheetData = {};
     let currentFileName = ''; // 現在のファイル名を保存する変数
