@@ -3,6 +3,14 @@
 An application that reads an Excel file with vertex and triangle arrays and outputs an STL file.
 
 # 使い方
+## 本ソフトを利用した体験のYouTube動画
+『紙とえんぴつで考えた「かたち」を3Dプリンターで作ってみよう！』シリーズ
+紙とえんぴつで考えた「かたち」を3Dプリンターで作ってみよう！
+[その１「3Dプリンターって何でも作れるの？」](https://youtu.be/kFSljQiP2LA)
+[その２「3Dモデルって何？」](https://youtu.be/5-clcpiV2Hc)
+[その３「紙とえんぴつでかたちを考えよう！」](https://youtu.be/pdgdYgvfz90)
+[その４「3Dプリンターでかたちを作ろう！」](https://youtu.be/Z_f-L8w3_bE)
+
 
 ## ウェブ実装
 [こちら](https://sasekazu.github.io/excelstl/)にアクセスして使用。
