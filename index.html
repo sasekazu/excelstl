@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcelSTL</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>ExcelSTL</h1>
+    <div class="drop-zone" id="dropZone">
+        <p>Excel ファイルをここにドラッグ＆ドロップしてください</p>
+        <p>（.xlsx, .xls ファイルに対応）</p>
+    </div>    <div id="fileInfo" class="file-info hidden"></div>
+    <div id="validationContainer" class="validation-container hidden"></div>
+    <div id="stlGenerationContainer" class="stl-generation-container hidden">
+        <h2>STLファイル生成</h2>
+        <div class="stl-options">
+            <div class="option-group">
+                <label>単位:</label>
+                <label><input type="radio" name="unit" value="cm" checked> [cm] から [mm]</label>
+                <label><input type="radio" name="unit" value="mm"> [mm] から [mm] (変換なし)</label>
+            </div>
+            <div class="option-group" id="thicknessGroup">
+                <label>押し出し厚さ (2Dモード時のみ):</label>
+                <input type="number" id="thickness" value="3" min="0.1" step="0.1"> mm
+            </div>
+        </div>
+        <button id="generateStlBtn" class="btn">STLファイル生成</button>
+    </div>
+    <div id="sheet1Container" class="table-container hidden">
+        <h2>Sheet1（頂点座標）</h2>
+        <div id="sheet1Table"></div>
+    </div>    <div id="sheet2Container" class="table-container hidden">
+        <h2>Sheet2（三角形インデックスリスト）</h2>
+        <div id="sheet2Table"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
