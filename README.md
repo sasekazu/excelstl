@@ -36,7 +36,7 @@ Sheet2（三角形インデックスリスト）
 ※ヘッダーのv1, v2, v3は書かない。書くとエラーになる。
 ※インデックスリストは頂点の順番が三角形の表から見て反時計回りに書かれていることが望ましいが、2DモードではExcelSTLが自動的に修正する。
 
-[サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/square-1cm.xlsx)
+[サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/sample/square-1cm.xlsx)
 
 ### 3Dモード
 三次元空間で閉じた形状を直接入力するモード。
@@ -65,12 +65,12 @@ Sheet2（三角形インデックスリスト）
 
 ※ヘッダーのv1, v2, v3は書かない。書くとエラーになる。
 
-[サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/tetra-1cm.xlsx)
+[サンプルExcelファイル](https://github.com/sasekazu/excelstl/blob/main/sample/tetra-1cm.xlsx)
 
 ## STLファイルの生成
 ExcelSTLを実行し、ウィンドウにExcelファイルをドラッグアンドドロップする。
 頂点座標が2列の場合は2Dモード、3列の場合は3Dモードが自動的に選択され実行される。
 名前を付けて保存ダイアログが出るので、保存場所とファイル名を入力し保存する。
 
-[2Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/square-1cm.stl)
-[3Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/tetra-1cm.stl)
+[2Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/sample/square-1cm.stl)
+[3Dモード出力例](https://github.com/sasekazu/excelstl/blob/main/sample/tetra-1cm.stl)
