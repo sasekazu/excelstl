@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let workbook = null;
     let sheetData = {};
+    let currentFileName = ''; // 現在のファイル名を保存する変数
 
     // ドラッグオーバーイベント
     dropZone.addEventListener('dragover', function(e) {
@@ -182,8 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return !hasErrors;
     }
-    
-    // Excelファイルを処理
+      // Excelファイルを処理
     function processExcelFile(file) {
         const reader = new FileReader();
         
@@ -191,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const data = new Uint8Array(e.target.result);
                 workbook = XLSX.read(data, { type: 'array' });
+                
+                // ファイル名を保存（拡張子なし）
+                currentFileName = file.name.replace(/\.(xlsx|xls)$/i, '');
                 
                 // シートデータをキャッシュ
                 sheetData = {};
@@ -604,15 +607,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return normal;
     }
-    
-    // STLファイルをダウンロード
+      // STLファイルをダウンロード
     function downloadSTL(stlString) {
         const blob = new Blob([stlString], { type: 'application/octet-stream' });
         const url = URL.createObjectURL(blob);
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'model.stl';
+        
+        // 入力したExcelファイル名に基づいてSTLファイル名を設定
+        // デフォルト名はmodel.stlとする
+        const stlFileName = currentFileName ? `${currentFileName}.stl` : 'model.stl';
+        a.download = stlFileName;
+        
         document.body.appendChild(a);
         a.click();
         
